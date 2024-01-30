@@ -34,6 +34,7 @@ typedef struct s_env
 typedef struct s_shell
 {
 	t_env	*env;
+	t_env	*exp;
 }	t_shell;
 
 
