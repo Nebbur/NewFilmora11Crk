@@ -41,17 +41,20 @@ void init_env(t_shell *shell, char **envp)
 void	sort_list(t_env *head)
 {
 	t_env	*temp;
-	char	*key;
-	char	*value;
+	char	*temp_key;
+	char	*temp_value;
 
 	temp = head;
 	while (temp->next != NULL)
 	{
 		if (ft_strcmp(temp->key, temp->next->key) > 0)
 		{
-			key = temp->key;
+			temp_key = temp->key;
+			temp_value = temp->value;
 			temp->key = temp->next->key;
-			temp->next->key = key;
+			temp->value = temp->next->value;
+			temp->next->key = temp_key;
+			temp->next->value = temp_value;
 			temp = head;
 		}
 		else
@@ -85,10 +88,9 @@ void	init_export(t_shell *shell, char **envp)
 			temp->next = new_node;
 			temp = temp->next;
 		}
-		sort_list(shell->exp);
-		printf("%s %s\n", temp->key, temp->value);
 		envp++;
 	}
+	sort_list(shell->exp);
 	temp->next = NULL;
 
 }
@@ -100,6 +102,12 @@ void	init_shell(t_shell *shell, char **envp)
 	env = envp;
 	init_env(shell, env);
 	init_export(shell, env);
+	/* while(shell->exp != NULL)
+	{
+		//exp sorted
+		printf("%s=%s\n", shell->exp->key, shell->exp->value);
+		shell->exp = shell->exp->next;
+	} */
 }
 
 void	free_all(t_shell *shell)
