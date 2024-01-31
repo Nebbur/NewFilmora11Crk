@@ -20,7 +20,7 @@ static void	ft_putchar(const char c, t_data *st)
 static void	ft_putstr(const char *str, t_data *st)
 {
 	if (!str)
-		return (ft_putstr("(null)", st));
+		return (ft_putstr("", st));
 	while (*str)
 		ft_putchar(*str++, st);
 }

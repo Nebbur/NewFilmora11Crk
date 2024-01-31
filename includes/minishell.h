@@ -35,6 +35,9 @@ typedef struct s_shell
 {
 	t_env	*env;
 	t_env	*exp;
+
+	char **cmds;
+	char *cmd;
 }	t_shell;
 
 

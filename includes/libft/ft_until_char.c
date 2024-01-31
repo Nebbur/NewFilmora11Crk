@@ -12,22 +12,21 @@
 
 #include "libft.h"
 
-char*	ft_until_char(const char* str, char caractere) 
+char*	ft_until_char(const char* str, char caractere)
 {
-	size_t	comprimentoSubstring;
-	char	*substring;
-	const char	*posicaoCaractere;
+	const char	*index;
+	size_t		len_str;
+	char		*substring;
 
 	if (str == NULL)
 		return NULL;
-	posicaoCaractere = ft_strchr(str, caractere);
-	if (posicaoCaractere != NULL)
-		comprimentoSubstring = (size_t)(posicaoCaractere - str);
+	index = ft_strchr(str, caractere);
+	if (index != NULL)
+		len_str = (size_t)(index - str);
 	else
-		comprimentoSubstring = ft_strlen(str);
-	substring = (char*)malloc(comprimentoSubstring + 1);
-	ft_strncpy(substring, str, comprimentoSubstring);
-	substring[comprimentoSubstring] = '\0';
-
+		len_str = ft_strlen(str);
+	substring = (char*)malloc(len_str + 1);
+	ft_strncpy(substring, str, len_str);
+	substring[len_str] = '\0';
 	return (substring);
 }
