@@ -124,8 +124,15 @@ void	ft_echo(char **cmds)
 {
 	int	i;
 	int	j;
+	int	flag;
 
+	flag = 0;
 	i = 0;
+	if (ft_strncmp(cmds[1], "-n", 2) == 0)
+		if (!(cmds[1][2]) || cmds[1][2] == 'n')
+			i++;
+	if (i == 1)
+		flag = 1;
 	while (cmds[++i])
 	{
 		j = -1;
@@ -152,8 +159,11 @@ void	ft_echo(char **cmds)
 			else
 				ft_printf("%c", cmds[i][j]);
 		}
+		if (cmds[i + 1])
+			ft_printf(" ");
 	}
-	ft_printf("\n");
+	if (flag == 0)
+		ft_printf("\n");
 }
 
 /* void	ft_echo(char **cmds)
