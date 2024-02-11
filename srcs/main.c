@@ -12,32 +12,6 @@
 
 #include "../includes/minishell.h"
 
-void init_env(t_shell *shell, char **envp)
-{
-	t_env *temp;
-	t_env *new_node;
-
-	temp = NULL;
-	while (envp[0])
-	{
-		new_node = (t_env *)malloc(sizeof(t_env));
-		new_node->key = ft_until_char((const char *)*envp, '=');
-		new_node->value = ft_strrchr((const char *)*envp, '=') + 1;
-		if (temp == NULL)
-		{
-			shell->env = new_node;
-			temp = shell->env;
-		}
-		else
-		{
-			temp->next = new_node;
-			temp = temp->next;
-		}
-		(envp)++;
-	}
-	temp->next = NULL;
-}
-
 void	sort_list(t_env *head)
 {
 	t_env	*temp;
@@ -60,54 +34,6 @@ void	sort_list(t_env *head)
 		else
 			temp = temp->next;
 	}
-}
-
-void	init_export(t_shell *shell, char **envp)
-{
-	t_env *temp;
-	t_env *new_node;
-
-	temp = NULL;
-	while (envp[0])
-	{
-		new_node = (t_env *)malloc(sizeof(t_env));
-		new_node->key = ft_until_char((const char *)*envp, '=');
-		new_node->value = ft_strrchr((const char *)*envp, '=') + 1;
-		if (temp == NULL)
-		{
-			shell->exp = new_node;
-			temp = shell->exp;
-		}
-		else
-		{
-			if (ft_strncmp(envp[0], "_=", 2) == 0)
-			{
-				envp++;
-				continue ;
-			}
-			temp->next = new_node;
-			temp = temp->next;
-		}
-		envp++;
-	}
-	sort_list(shell->exp);
-	temp->next = NULL;
-
-}
-
-void	init_shell(t_shell *shell, char **envp)
-{
-	char **env;
-
-	env = envp;
-	init_env(shell, env);
-	init_export(shell, env);
-	/* while(shell->exp != NULL)
-	{
-		//exp sorted
-		printf("%s=%s\n", shell->exp->key, shell->exp->value);
-		shell->exp = shell->exp->next;
-	} */
 }
 
 void	free_all(t_shell *shell)
@@ -136,21 +62,20 @@ void	ft_echo(char **cmds)
 	while (cmds[++i])
 	{
 		j = -1;
-		while (cmds[i][++j])
+		while (cmds[i][++j] != '\0')
 		{
 			if (cmds[i][j] == '$')
 			{
 				if (cmds[i][j + 1] == '?')
 				{
-					ft_printf("%d", 0);
+					ft_printf("%d", 0); // should expand to the exit status of the most recently executed foreground pipeline
 					j++;
 					continue ;
 				}
 				if (cmds[i][j + 1] == '$')
 				{
-					ft_printf("%d\n", getpid());
+					ft_printf("%d", getpid());
 					j++;
-					continue ;
 				}
 				ft_printf("%s", getenv(ft_until_char(cmds[i] + j + 1, '$')));
 				while (cmds[i][++j + 1] > 32 && cmds[i][j + 1] != '$')
@@ -165,34 +90,6 @@ void	ft_echo(char **cmds)
 	if (flag == 0)
 		ft_printf("\n");
 }
-
-/* void	ft_echo(char **cmds)
-{
-	int i;
-
-	i = 1;
-	if (cmds[1][0] == '$')
-	{
-		if (cmds[1][0] == '$' && cmds[1][1] == '?')
-		{
-			ft_printf("%d\n", 0);
-			return ;
-		}
-		if (cmds[1][1] == '$')
-		{
-			ft_printf("%d\n", getpid());
-			return ;
-		}
-		ft_printf("%s\n", getenv(cmds[1] + 1));
-		return ;
-	}
-	while (cmds[i] != NULL)
-	{
-		ft_printf("%s ", cmds[i]);
-		i++;
-	}
-	ft_printf("\n");
-} */
 
 char	**ft_env_to_char(t_env *env)
 {
@@ -369,22 +266,23 @@ int	main(int ac, char **av, char **envp)
 
 	while (1)
 	{
-		shell.cmd = readline("\e[4;35mmini\e[4;34mshell\e[0;36m$\e[0m ");
-		if (shell.cmd == NULL)
+		shell.input = readline("\e[4;35mmini\e[4;34mshell\e[0;36m$\e[0m ");
+		if (shell.input == NULL)
 		{
 			printf("exit\n");
 			break ;
 		}
-		if (ft_strcmp(shell.cmd, "exit") == 0)
+		parser(&shell);
+		if (ft_strcmp(shell.input, "exit") == 0)
 		{
-			free(shell.cmd);
+			free(shell.input);
 			break ;
 		}
-		if (ft_strcmp(shell.cmd, "") != 0)
-			add_history(shell.cmd);
-		shell.cmds = ft_split(shell.cmd, ' ');
-		free(shell.cmd);
-		shell.cmd = NULL;
+		if (ft_strcmp(shell.input, "") != 0)
+			add_history(shell.input);
+		shell.cmds = ft_split(shell.input, ' ');
+		free(shell.input);
+		shell.input = NULL;
 		if (shell.cmds[0] == NULL)
 		{
 			free(shell.cmds);

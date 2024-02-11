@@ -12,12 +12,12 @@ OBJS_DIR	= srcs/objs/
 LIBFT_DIR	= includes/libft/
 commit_msg	= "auto commit"
 
-SRCS_LIST	=	main.c
+SRCS_LIST	=	main lexical parser initialize
 
 COMPILE_COUNT = 0
 
-SRCS 		= $(addprefix $(SRCS_DIR), $(SRCS_LIST))
-OBJS 		= $(addprefix $(OBJS_DIR), $(SRCS_LIST:.c=.o))
+SRCS 		= $(addprefix $(SRCS_DIR)/, $(addsuffix .c, $(SRCS_LIST)))
+OBJS 		= $(addprefix $(OBJS_DIR)/, $(addsuffix .o, $(SRCS_LIST)))
 LIBFT		= $(addprefix $(LIBFT_DIR), $(LIBFT_A))
 
 NUM_SRCS	= $(words $(SRCS_LIST))
