@@ -17,7 +17,7 @@ void	print_token(t_token *token);
 
 static bool	is_special_char(char c)
 {
-	if (c == '|' || c == ';' || \
+	if (c == '|' || c == ';' || c == '\'' || c == '\"' || \
 	c == '>' || c == '<' || c == '$' || c == '&' || \
 	c == '(' || c == ')' || c == 92)
 		return (true);
@@ -35,7 +35,6 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			continue ;
 		if (input[*i] == '\'')
 		{
-			token->quote[S_QUOTE] = true;
 			quote[S_QUOTE] = !quote[S_QUOTE];
 			begin = *i + 1;
 			while (quote[S_QUOTE] == true && input[++(*i)] && input[*i] != '\'')
@@ -46,7 +45,19 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			token = token->next;
 			break ;
 		}
-		if (input[*i] == '$')
+		else if (input[*i] == '\"')
+		{
+			quote[D_QUOTE] = !quote[D_QUOTE];
+			begin = *i + 1;
+			while (quote[D_QUOTE] == true && input[++(*i)] && input[*i] != '\"')
+				;
+			token->value = ft_substr(input, begin, *i - begin);
+			token->next = (t_token *)malloc(sizeof(t_token));
+			token->next->prev = token;
+			token = token->next;
+			break ;
+		}
+		else if (input[*i] == '$')
 		{
 			begin = *i;
 			while (input[++(*i)] && input[*i] != ' ')
@@ -214,10 +225,10 @@ int	lexical(char *input , t_shell *shell)
 	j = -1;
 	i = -1;
 	token = shell->token;
-	token->quote[S_QUOTE] = false;
-	token->quote[D_QUOTE] = false;
 	while (input[++i])
 	{
+		token->quote[S_QUOTE] = false;
+		token->quote[D_QUOTE] = false;
 		while (input[i] == ' ')
 			i++;
 		if (input[i] == '\0')

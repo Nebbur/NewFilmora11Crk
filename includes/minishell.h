@@ -22,20 +22,20 @@
 
 enum	e_TYPE_TOKEN {
 	S_QUOTE = 0,
-	D_QUOTE,		// 2
-	BACKSLASH,		// 3
-	AMPERSAND,		// 4
-	OR,				// 5
-	AND,			// 6
-	PIPE,			// 7
-	SEMICOLON,		// 8
-	REDIR_OUT,		// 9
-	REDIR_IN,		// 10
-	REDIR_APPEND,	// 11
-	REDIR_HEREDOC,	// 12
-	ENV,			// 13
-	PARENTHESIS,	// 14
-	WORD,			// 15
+	D_QUOTE,		// 1
+	BACKSLASH,		// 2
+	AMPERSAND,		// 3
+	OR,				// 4
+	AND,			// 5
+	PIPE,			// 6
+	SEMICOLON,		// 7
+	REDIR_OUT,		// 8
+	REDIR_IN,		// 9
+	REDIR_APPEND,	// 10
+	REDIR_HEREDOC,	// 11
+	ENV,			// 12
+	PARENTHESIS,	// 13
+	WORD,			// 14
 };
 
 enum	e_GLOBAL {

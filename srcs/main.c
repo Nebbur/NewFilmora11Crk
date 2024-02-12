@@ -52,6 +52,7 @@ void	ft_echo(char **cmds)
 	int	j;
 	int	flag;
 
+	printf("echo\n");
 	flag = 0;
 	i = 0;
 	if (ft_strncmp(cmds[1], "-n", 2) == 0)
