@@ -14,6 +14,7 @@
 
 static bool	is_special_char(char c);
 void	print_token(t_token *token);
+char	*get_token_type(int type);
 
 static bool	is_special_char(char c)
 {
@@ -29,6 +30,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 	int 	begin;
 
 	(*i) = *i - 1;
+	printf("Special char\n");
 	while (input[++(*i)])
 	{
 		if (input[*i] == ' ')
@@ -165,7 +167,9 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 		{
 			if (input[*i + 1] == '&')
 			{
+				printf("AND %i\n", *i);
 				token->type = AND;
+				printf("Token type %i\n", token->type);
 				token->value = ft_strdup("&&");
 				token->next = (t_token *)malloc(sizeof(t_token));
 				token->next->prev = token;
@@ -213,6 +217,8 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			break ;
 		}
 	}
+			printf("Token type %i\n", token->type);
+		printf("Special char %i\n", *i);
 	return (token);
 }
 
@@ -234,9 +240,16 @@ int	lexical(char *input , t_shell *shell)
 		if (input[i] == '\0')
 			break ;
 		if (is_special_char(input[i]) == true)
+		{
+			printf("Special char %i\n", i);
 			token = special_char(input, token, &i, token->quote);
+			printf("Token value %s\n", token->prev->value);
+			printf("Token type %i\n", token->prev->type);
+			printf("Special char %i\n", i);
+		}
 		else
 		{
+			printf("Word %i\n", i);
 			token->type = WORD;
 			token->value = ft_calloc(1, sizeof(char *));
 			while (input[i] > 32 && is_special_char(input[i]) == false)
@@ -257,9 +270,55 @@ void	print_token(t_token *token)
 	temp = token;
 	while (temp->next != NULL)
 	{
-		printf("Value: |%s|\n", temp->value);
-		printf("Type: %d\n", temp->type);
+		char *quote;
+		if (temp->quote[S_QUOTE] == true)
+			quote = "SINGLE";
+		else if (temp->quote[D_QUOTE] == true)
+			quote = "DOUBLE";
+		else
+			quote = "NONE";
+		printf("%s_______________________\n", RED);
+		printf("|%s Value: |%s%s%s|\n", BLUE, YELLOW, temp->value, BLUE);
+		printf("%s|%s Type: %s%s\n", RED, BLUE, YELLOW, get_token_type(temp->type));
+		printf("%s|%s Quote: %s%s\n", RED, BLUE, YELLOW, quote);
+		printf("%s|______________________\n", RED);
+
+		printf("%s\n", RESET);
 		temp = temp->next;
 	}
 }
 
+char	*get_token_type(int type)
+{
+	if (type == S_QUOTE)
+		return ("S_QUOTE");
+	else if (type == D_QUOTE)
+		return ("D_QUOTE");
+	else if (type == BACKSLASH)
+		return ("BACKSLASH");
+	else if (type == AMPERSAND)
+		return ("AMPERSAND");
+	else if (type == OR)
+		return ("OR");
+	else if (type == AND)
+		return ("AND");
+	else if (type == PIPE)
+		return ("PIPE");
+	else if (type == SEMICOLON)
+		return ("SEMICOLON");
+	else if (type == REDIR_OUT)
+		return ("REDIR_OUT");
+	else if (type == REDIR_IN)
+		return ("REDIR_IN");
+	else if (type == REDIR_APPEND)
+		return ("REDIR_APPEND");
+	else if (type == REDIR_HEREDOC)
+		return ("REDIR_HEREDOC");
+	else if (type == ENV)
+		return ("ENV");
+	else if (type == PARENTHESIS)
+		return ("PARENTHESIS");
+	else if (type == WORD)
+		return ("WORD");
+	return ("ERROR");
+}
