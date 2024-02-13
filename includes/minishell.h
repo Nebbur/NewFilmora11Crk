@@ -80,7 +80,7 @@ int	parser(t_shell *shell);
 void	init_env(t_shell *shell, char **envp);
 void	init_export(t_shell *shell, char **envp);
 void	init_shell(t_shell *shell, char **envp);
-void	init_token(t_shell *shell);
+t_token	*init_token(t_token *token);
 
 //			Temp Main
 void	sort_list(t_env *head);

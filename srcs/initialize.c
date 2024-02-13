@@ -71,16 +71,17 @@ void	init_export(t_shell *shell, char **envp)
 
 }
 
-void	init_token(t_shell *shell)
+t_token	*init_token(t_token *token)
 {
-	shell->token = (t_token *)malloc(sizeof(t_token));
-	shell->token->value = NULL;
-	shell->token->type = 0;
-	shell->token->quote[S_QUOTE] = false;
-	shell->token->quote[D_QUOTE] = false;
-	shell->token->error = 0;
-	shell->token->prev = NULL;
-	shell->token->next = NULL;
+	token = (t_token *)malloc(sizeof(t_token));
+	token->value = NULL;
+	token->type = 0;
+	token->quote[S_QUOTE] = false;
+	token->quote[D_QUOTE] = false;
+	token->error = 0;
+	token->prev = NULL;
+	token->next = NULL;
+	return (token);
 }
 
 void	init_shell(t_shell *shell, char **envp)
@@ -90,6 +91,6 @@ void	init_shell(t_shell *shell, char **envp)
 	env = envp;
 	init_env(shell, env);
 	init_export(shell, env);
-	init_token(shell);
+	shell->token = init_token(shell->token);
 }
 
