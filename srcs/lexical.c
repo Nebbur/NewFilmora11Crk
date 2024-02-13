@@ -41,7 +41,9 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			while (quote[S_QUOTE] == true && input[++(*i)] && input[*i] != '\'')
 				;
 			printf("input[*i + 1]: |%c|\n", input[*i + 1]);
-			if (input[*i + 1] == '\"' || input[*i + 1] == '\'')
+			if ((input[*i + 1] == '\"' || input[*i + 1] == '\'') || \
+			isalnum(input[*i + 1]) == 1 || (input[*i + 1] == 92 && \
+			(input[*i + 2] == '\'' || input[*i + 2] == 92 || input[*i + 2] == '\"')))
 				token->same_word = true;
 			token->value = ft_substr(input, begin, *i - begin);
 			token->next = init_token(token->next);
@@ -57,7 +59,9 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			while (quote[D_QUOTE] == true && input[++(*i)] && input[*i] != '\"')
 				;
 			printf("input[*i + 1]: |%c|\n", input[*i + 1]);
-			if (input[*i + 1] == '\"' || input[*i + 1] == '\'')
+			if ((input[*i + 1] == '\"' || input[*i + 1] == '\'') || \
+			isalnum(input[*i + 1]) == 1 || (input[*i + 1] == 92 && \
+			(input[*i + 2] == '\'' || input[*i + 2] == 92 || input[*i + 2] == '\"')))
 				token->same_word = true;
 			token->value = ft_substr(input, begin, *i - begin);
 			token->next = init_token(token->next);
