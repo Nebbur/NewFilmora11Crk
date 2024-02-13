@@ -66,7 +66,6 @@ int	parsing(t_shell *shell)
 
 	temp = shell->token;
 	i = 0;
-	printf("Parsing\n");
 
 	while (temp != NULL)
 	{
@@ -79,11 +78,11 @@ int	parsing(t_shell *shell)
 	i = 0;
 	while (temp != NULL)
 	{
-		printf("Token: %s\n", temp->value);
+		//printf("Token: %s\n", temp->value);
 		if (temp->type == WORD)
 		{
 			shell->cmds[i] = ft_strdup(temp->value);
-			printf("Shell cmds[%d]: %s\n", i, shell->cmds[i]);
+		//	printf("Shell cmds[%d]: %s\n", i, shell->cmds[i]);
 			i++;
 		}
 		if (!temp->next->next)
@@ -99,7 +98,6 @@ int	process_tokens(t_shell *shell)
 	t_token	*token;
 
 	token = shell->token;
-	printf("Entrou no process_tokens\n");
 	while (token->next != NULL)
 	{
 		if (token->type == S_QUOTE || token->type == D_QUOTE)
@@ -144,7 +142,6 @@ int	parser(t_shell *shell)
 		return (1);
 	if (process_tokens(shell) == 1)
 		return (1);
-	printf("Saiu do process_tokens\n");
 	if (validation(shell) == 1)
 		return (1);
 	if (parsing(shell) == 1)
