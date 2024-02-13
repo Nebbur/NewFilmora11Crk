@@ -112,21 +112,17 @@ int	process_tokens(t_shell *shell)
 		}
 		if (token->type == BACKSLASH)
 		{
-			if ((token->next && token->same_word == true))
+			token->type = WORD;
+			if (token->same_word == true)
 			{
-				token->value = ft_strjoin(token->value, token->next->value);
-				token->type = WORD;
 				token->same_word = false;
-				token->next = token->next->next;
-				token->next->prev = token;
+				if (token->next)
+				{
+					token->value = ft_strjoin(token->value, token->next->value);
+					token->next = token->next->next;
+					token->next->prev = token;
+				}
 			}
-			/* if ((token->next && token->same_word == true) && \
-			(token->next->type == S_QUOTE || token->next->type == D_QUOTE || token->next->type == BACKSLASH))
-			{
-				token->value = ft_strjoin(token->value, token->next->value);
-				token->next = token->next->next;
-				token->next->prev = token;
-			} */
 		}
 		token = token->next;
 	}

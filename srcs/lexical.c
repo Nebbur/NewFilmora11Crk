@@ -199,16 +199,37 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 				token->error = 1;
 				return (token);
 			}
-			if (input[*i + 1] == 92 || input[*i + 1] == '\"' || input[*i + 1] == '\''
-			|| input[*i + 1] == '$' || input[*i + 1] == '&' || input[*i + 1] == '|')
+			if (ft_strchr("\\\"\'$&|", input[*i + 1]) != NULL)
 			{
-				printf("Error: Backslash followed by a special character\n");
-				token->value = ft_calloc(2, sizeof(char));
-				token->value[0] = input[*i + 1];
-				token->value[1] = '\0';
-				(*i)++;
-				if (input[*i + 1] && input[*i + 1] > 32 && is_special_char(input[*i + 1]) == false)
-					token->same_word = true;
+				printf("Backslash followed by a special character\n");
+				begin = *i;
+				int count_char = 0;
+				int j = -1;
+				while (input[++(j)] && input[j] > 32)
+				{
+					if (input[j] == 92)
+					{
+						j++;
+						if (ft_strchr("\\\"\'$&|", input[*i]) != NULL)
+							count_char++;
+					}
+					else
+						count_char++;
+				}
+				token->value = ft_calloc(1, sizeof(char *) * (count_char + 1));;
+				(*i)--;
+				while (input[++(*i)] && input[*i] > 32)
+				{
+					if (input[*i] == 92)
+					{
+						(*i)++;
+						if (ft_strchr("\\\"\'$&|", input[*i]) != NULL)
+							token->value = ft_strjoin(token->value, ft_substr(input, *i, 1));
+					}
+					else
+						token->value = ft_strjoin(token->value, ft_substr(input, *i, 1));
+					printf("Token value: %s\n", token->value);
+				}
 				token->next = init_token(token->next);
 				token->next->prev = token;
 				token = token->next;
@@ -270,6 +291,7 @@ int	lexical(char *input , t_shell *shell)
 		}
 	}
 	print_token(shell->token);
+	printf("_______________________\n");
 	return (0);
 }
 
