@@ -13,7 +13,6 @@
 #include "../includes/minishell.h"
 
 static bool	is_special_char(char c);
-void	print_token(t_token *token);
 char	*get_token_type(int type);
 
 static bool	is_special_char(char c)
@@ -30,7 +29,6 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 	int 	begin;
 
 	(*i) = *i - 1;
-	printf("Special char\n");
 	while (input[++(*i)])
 	{
 		if (input[*i] == ' ')
@@ -38,12 +36,15 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 		if (input[*i] == '\'')
 		{
 			quote[S_QUOTE] = !quote[S_QUOTE];
-			begin = *i + 1;
 			token->type = S_QUOTE;
+			begin = *i + 1;
 			while (quote[S_QUOTE] == true && input[++(*i)] && input[*i] != '\'')
 				;
+			printf("input[*i + 1]: |%c|\n", input[*i + 1]);
+			if (input[*i + 1] == '\"' || input[*i + 1] == '\'')
+				token->same_word = true;
 			token->value = ft_substr(input, begin, *i - begin);
-			token = init_token(token->next);
+			token->next = init_token(token->next);
 			token->next->prev = token;
 			token = token->next;
 			break ;
@@ -55,8 +56,11 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			begin = *i + 1;
 			while (quote[D_QUOTE] == true && input[++(*i)] && input[*i] != '\"')
 				;
+			printf("input[*i + 1]: |%c|\n", input[*i + 1]);
+			if (input[*i + 1] == '\"' || input[*i + 1] == '\'')
+				token->same_word = true;
 			token->value = ft_substr(input, begin, *i - begin);
-			token = init_token(token->next);
+			token->next = init_token(token->next);
 			token->next->prev = token;
 			token = token->next;
 			break ;
@@ -68,7 +72,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 				;
 			token->type = ENV;
 			token->value = ft_substr(input, begin, *i - begin);
-			token = init_token(token->next);
+			token->next = init_token(token->next);
 			token->next->prev = token;
 			token = token->next;
 			break ;
@@ -79,7 +83,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			{
 				token->type = OR;
 				token->value = ft_strdup("||");
-				token = init_token(token->next);
+				token->next = init_token(token->next);
 				token->next->prev = token;
 				token = token->next;
 				(*i)++;
@@ -88,7 +92,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			{
 			token->type = PIPE;
 			token->value = ft_strdup("|");
-			token = init_token(token->next);
+			token->next = init_token(token->next);
 			token->next->prev = token;
 			token = token->next;
 			break ;
@@ -98,7 +102,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 		{
 			token->type = SEMICOLON;
 			token->value = ft_strdup(";");
-			token = init_token(token->next);
+			token->next = init_token(token->next);
 			token->next->prev = token;
 			token = token->next;
 			break ;
@@ -114,7 +118,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 				begin = (*i);
 				while (input[++(*i)] && input[*i] != ' ')
 					;
-				token = init_token(token->next);
+				token->next = init_token(token->next);
 				token->value = ft_substr(input, begin, *i - begin);
 				token->next->prev = token;
 				token = token->next;
@@ -128,7 +132,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 				while (input[++(*i)] && input[*i] != ' ')
 					;
 				token->value = ft_substr(input, begin, *i - begin);
-				token = init_token(token->next);
+				token->next = init_token(token->next);
 				token->next->prev = token;
 				token = token->next;
 			}
@@ -146,7 +150,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 				while (input[++(*i)] && input[*i] != ' ')
 					;
 				token->value = ft_substr(input, begin, *i - begin);
-				token = init_token(token->next);
+				token->next = init_token(token->next);
 				token->next->prev = token;
 				token = token->next;
 			}
@@ -159,7 +163,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 				while (input[++(*i)] && input[*i] != ' ')
 					;
 				token->value = ft_substr(input, begin, *i - begin);
-				token = init_token(token->next);
+				token->next = init_token(token->next);
 				token->next->prev = token;
 				token = token->next;
 			}
@@ -171,7 +175,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			{
 				token->type = AND;
 				token->value = ft_strdup("&&");
-				token = init_token(token->next);
+				token->next = init_token(token->next);
 				token->next->prev = token;
 				token = token->next;
 				(*i)++;
@@ -180,7 +184,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			{
 				token->type = AMPERSAND;
 				token->value = ft_strdup("&");
-				token = init_token(token->next);
+				token->next = init_token(token->next);
 				token->next->prev = token;
 				token = token->next;
 			}
@@ -193,7 +197,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			token->value[1] = input[*i + 1];
 			token->value[2] = '\0';
 			(*i)++;
-			token = init_token(token->next);
+			token->next = init_token(token->next);
 			token->next->prev = token;
 			token = token->next;
 			break ;
@@ -202,7 +206,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 		{
 			token->type = PARENTHESIS;
 			token->value = ft_strdup("(");
-			token = init_token(token->next);
+			token->next = init_token(token->next);
 			token->next->prev = token;
 			token = token->next;
 			break ;
@@ -211,14 +215,12 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 		{
 			token->type = PARENTHESIS;
 			token->value = ft_strdup(")");
-			token = init_token(token->next);
+			token->next = init_token(token->next);
 			token->next->prev = token;
 			token = token->next;
 			break ;
 		}
 	}
-	printf("Token type %i\n", token->type);
-	printf("Special char %i\n", *i);
 	return (token);
 }
 
@@ -252,7 +254,6 @@ int	lexical(char *input , t_shell *shell)
 			token = token->next;
 		}
 	}
-	print_token(shell->token);
 	return (0);
 }
 

@@ -54,6 +54,7 @@ typedef struct s_token
 	char			*value;
 	int				type;
 	bool			quote[2];
+	bool			same_word;
 	int				error;
 	struct s_token	*prev;
 	struct s_token	*next;
@@ -93,4 +94,7 @@ void	ft_export(char **cmds, t_shell *shell);
 void	ft_unset(t_env **head, char *key);
 void	ft_env(char **cmds, t_shell *shell);
 int		main(int ac, char **av, char **envp);
+
+void	print_token(t_token *token);
+
 #endif

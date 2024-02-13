@@ -14,14 +14,14 @@
 
 void	new_input(t_shell *shell)
 {
-	t_token	*temp;
+	t_token	*token;
 	char	*input;
 
-	while (1)
+	/* while (1)
 	{
 		input = readline("> ");
-
-	}
+		break;
+	} */
 }
 
 int	validation(t_shell *shell)
@@ -54,6 +54,7 @@ int	validation(t_shell *shell)
 				return (1);
 			}
 		}
+		token = token->next;
 	}
 	return (0);
 }
@@ -66,28 +67,89 @@ int	parsing(t_shell *shell)
 	temp = shell->token;
 	i = 0;
 	printf("Parsing\n");
-	while (temp)
+
+	while (temp != NULL)
+	{
+		if (temp->type == WORD)
+			i++;
+		temp = temp->next;
+	}
+	shell->cmds = (char **)malloc(sizeof(char *) * (i + 2));
+	temp = shell->token;
+	i = 0;
+	while (temp != NULL)
 	{
 		printf("Token: %s\n", temp->value);
 		if (temp->type == WORD)
 		{
 			shell->cmds[i] = ft_strdup(temp->value);
+			printf("Shell cmds[%d]: %s\n", i, shell->cmds[i]);
 			i++;
 		}
+		if (!temp->next->next)
+			break ;
 		temp = temp->next;
 	}
 	shell->cmds[i] = NULL;
 	return (0);
 }
 
+int	process_tokens(t_shell *shell)
+{
+	t_token	*token;
+
+	token = shell->token;
+	printf("Entrou no process_tokens\n");
+	while (token->next != NULL)
+	{
+		if (token->type == S_QUOTE || token->type == D_QUOTE)
+		{
+			if ((token->next && token->same_word == true) && \
+			(token->next->type == S_QUOTE || token->next->type == D_QUOTE))
+			{
+				token->value = ft_strjoin(token->value, token->next->value);
+				token->next = token->next->next;
+				token->next->prev = token;
+			}
+		}
+		if (token->type == BACKSLASH)
+		{
+			if ((token->next && token->same_word == true) && \
+			(token->next->type == S_QUOTE || token->next->type == D_QUOTE || token->next->type == BACKSLASH))
+			{
+				token->value = ft_strjoin(token->value, token->next->value);
+				token->next = token->next->next;
+				token->next->prev = token;
+			}
+		}
+		token = token->next;
+	}
+}
+
+void	print_cmds(char **cmds)
+{
+	int		i;
+
+	i = 0;
+	while (cmds[i])
+	{
+		printf("Cmds[%d]: %s\n", i, cmds[i]);
+		i++;
+	}
+}
+
 int	parser(t_shell *shell)
 {
 	if (lexical(shell->input , shell) == 1)
 		return (1);
-	printf("Saiu do lexical\n");
+	if (process_tokens(shell) == 1)
+		return (1);
+	printf("Saiu do process_tokens\n");
 	if (validation(shell) == 1)
 		return (1);
 	if (parsing(shell) == 1)
 		return (1);
+	print_token(shell->token);
+	print_cmds(shell->cmds);
 	return (0);
 }

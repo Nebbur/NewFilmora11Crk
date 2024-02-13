@@ -74,13 +74,14 @@ void	init_export(t_shell *shell, char **envp)
 t_token	*init_token(t_token *token)
 {
 	token = (t_token *)malloc(sizeof(t_token));
-	token->value = NULL;
 	token->type = 0;
-	token->quote[S_QUOTE] = false;
-	token->quote[D_QUOTE] = false;
 	token->error = 0;
 	token->prev = NULL;
 	token->next = NULL;
+	token->value = NULL;
+	token->same_word = false;
+	token->quote[S_QUOTE] = false;
+	token->quote[D_QUOTE] = false;
 	return (token);
 }
 

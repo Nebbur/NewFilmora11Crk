@@ -281,7 +281,7 @@ int	main(int ac, char **av, char **envp)
 		}
 		if (ft_strcmp(shell.input, "") != 0)
 			add_history(shell.input);
-		shell.cmds = ft_split(shell.input, ' ');
+		//shell.cmds = ft_split(shell.input, ' ');
 		free(shell.input);
 		shell.input = NULL;
 		if (shell.cmds[0] == NULL)
