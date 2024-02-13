@@ -36,9 +36,11 @@ void handle_quote(int quote_type, bool *quote, int *i, char *input, t_token *tok
 		quote_char = input[*i];
 	while (quote[quote_type] == true && input[++(*i)] && input[*i] != quote_char)
 		;
-	if ((input[*i + 1] == '\"' || input[*i + 1] == '\'') || \
-	isalnum(input[*i + 1]) == 1 || (input[*i + 1] == 92 && \
-	(input[*i + 2] == '\'' || input[*i + 2] == 92 || input[*i + 2] == '\"')))
+	if (input[*i] && input[*i + 1] && (input[*i + 1] == '\"' || input[*i + 1] == '\'') || \
+	isalnum(input[*i + 1]) == 1)
+		token->same_word = true;
+	else if (input[*i] && input[*i + 1] && input[*i + 1] == '\\' && input[*i + 2] != '\0' && \
+	(input[*i + 2] == '\'' || input[*i + 2] == '\\' || input[*i + 2] == '\"'))
 		token->same_word = true;
 	token->value = ft_substr(input, begin, *i - begin);
 	token->next = init_token(token->next);
@@ -191,13 +193,28 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 		else if (input[*i] == 92)
 		{
 			token->type = BACKSLASH;
-			token->value[0] = input[*i];
-			token->value[1] = input[*i + 1];
-			token->value[2] = '\0';
-			(*i)++;
-			token->next = init_token(token->next);
-			token->next->prev = token;
-			token = token->next;
+			if (input[*i + 1] == '\0')
+			{
+				printf("Error: Backslash at the end of the line\n");
+				token->error = 1;
+				return (token);
+			}
+			if (input[*i + 1] == 92 || input[*i + 1] == '\"' || input[*i + 1] == '\''
+			|| input[*i + 1] == '$' || input[*i + 1] == '&' || input[*i + 1] == '|')
+			{
+				printf("Error: Backslash followed by a special character\n");
+				token->value = ft_calloc(2, sizeof(char));
+				token->value[0] = input[*i + 1];
+				token->value[1] = '\0';
+				(*i)++;
+				if (input[*i + 1] && input[*i + 1] > 32 && is_special_char(input[*i + 1]) == false)
+					token->same_word = true;
+				token->next = init_token(token->next);
+				token->next->prev = token;
+				token = token->next;
+			}
+			else
+				printf("Error: Backslash isn't followed by anything\n");
 			break ;
 		}
 		else if (input[*i] == '(')
@@ -252,6 +269,7 @@ int	lexical(char *input , t_shell *shell)
 			token = token->next;
 		}
 	}
+	print_token(shell->token);
 	return (0);
 }
 
@@ -273,6 +291,7 @@ void	print_token(t_token *token)
 		printf("|%s Value: |%s%s%s|\n", BLUE, YELLOW, temp->value, BLUE);
 		printf("%s|%s Type: %s%s\n", RED, BLUE, YELLOW, get_token_type(temp->type));
 		printf("%s|%s Quote: %s%s\n", RED, BLUE, YELLOW, quote);
+		printf("%s|%s Same word: %s%s\n", RED, BLUE, YELLOW, (temp->same_word == true) ? "TRUE" : "FALSE");
 		printf("%s|______________________\n", RED);
 		printf("%s\n", RESET);
 		temp = temp->next;
