@@ -222,8 +222,7 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 				{
 					if (input[*i] == 92)
 					{
-						(*i)++;
-						if (ft_strchr("\\\"\'$&|", input[*i]) != NULL)
+						if (ft_strchr("\\\"\'$&|", input[++(*i)]) != NULL)
 							token->value = ft_strjoin(token->value, ft_substr(input, *i, 1));
 					}
 					else
@@ -283,8 +282,9 @@ int	lexical(char *input , t_shell *shell)
 		{
 			token->type = WORD;
 			token->value = ft_calloc(1, sizeof(char *));
-			while (input[i] > 32 && is_special_char(input[i]) == false)
+			while (input[i] && input[i] > 32 && is_special_char(input[i]) == false)
 				token->value = ft_strjoin(token->value, ft_substr(input, i++, 1));
+			i--;
 			token->next = (t_token *)malloc(sizeof(t_token));
 			token->next->prev = token;
 			token = token->next;

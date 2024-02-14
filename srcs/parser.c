@@ -40,7 +40,7 @@ int	validation(t_shell *shell)
 		{
 			if (token->next == NULL)
 				new_input(shell);
-			if (token->next->type == PIPE || token->next->type == AND || token->next->type == OR)
+			if (token->next && token->next->type == PIPE || token->next->type == AND || token->next->type == OR)
 			{
 				printf("Error: Operator not followed by any command\n");
 				return (1);
@@ -54,7 +54,10 @@ int	validation(t_shell *shell)
 				return (1);
 			}
 		}
-		token = token->next;
+		if (token->next != NULL)
+			token = token->next;
+		else
+			break ;
 	}
 	return (0);
 }
@@ -150,6 +153,7 @@ int	parser(t_shell *shell)
 		return (1);
 	if (parsing(shell) == 1)
 		return (1);
+	
 	print_token(shell->token);
 	print_cmds(shell->cmds);
 	return (0);
