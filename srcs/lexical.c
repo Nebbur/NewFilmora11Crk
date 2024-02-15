@@ -95,8 +95,8 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			token->next = init_token(token->next);
 			token->next->prev = token;
 			token = token->next;
-			break ;
 			}
+			break ;
 		}
 		else if (input[*i] == ';')
 		{

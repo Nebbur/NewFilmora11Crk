@@ -76,23 +76,18 @@ int	parsing(t_shell *shell)
 			i++;
 		temp = temp->next;
 	}
-	shell->cmds = (char **)malloc(sizeof(char *) * (i + 2));
+	shell->cmds->cmds = (char **)malloc(sizeof(char *) * (i + 2));
 	temp = shell->token;
 	i = 0;
 	while (temp != NULL)
 	{
-		//printf("Token: %s\n", temp->value);
 		if (temp->type == WORD)
-		{
-			shell->cmds[i] = ft_strdup(temp->value);
-		//	printf("Shell cmds[%d]: %s\n", i, shell->cmds[i]);
-			i++;
-		}
+			shell->cmds->cmds[i++] = ft_strdup(temp->value);
 		if (!temp->next->next)
 			break ;
 		temp = temp->next;
 	}
-	shell->cmds[i] = NULL;
+	shell->cmds->cmds[i] = NULL;
 	return (0);
 }
 
@@ -145,7 +140,7 @@ void	print_cmds(char **cmds)
 
 int	parser(t_shell *shell)
 {
-	if (lexical(shell->input , shell) == 1)
+	if (lexical(shell->cmds->input , shell) == 1)
 		return (1);
 	if (process_tokens(shell) == 1)
 		return (1);
@@ -153,8 +148,8 @@ int	parser(t_shell *shell)
 		return (1);
 	if (parsing(shell) == 1)
 		return (1);
-	
+
 	print_token(shell->token);
-	print_cmds(shell->cmds);
+	print_cmds(shell->cmds->cmds);
 	return (0);
 }

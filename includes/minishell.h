@@ -60,14 +60,18 @@ typedef struct s_token
 	struct s_token	*next;
 }	t_token;
 
+typedef struct s_cmds
+{
+	char **cmds;
+	char *input;
+}	t_cmds;
+
 typedef struct s_shell
 {
 	t_env	*env;
 	t_env	*exp;
 	t_token	*token;
-
-	char **cmds;
-	char *input;
+	t_cmds	*cmds;
 }	t_shell;
 
 //			Lexical
@@ -88,7 +92,7 @@ void	sort_list(t_env *head);
 void	free_all(t_shell *shell);
 void	ft_echo(char **cmds);
 char	**ft_env_to_char(t_env *env);
-void	ft_exec(char **cmds, t_shell *shell);
+int	ft_exec(char **cmds, t_shell *shell);
 void	ft_cd(char **cmds, t_shell *shell);
 void	ft_export(char **cmds, t_shell *shell);
 void	ft_unset(t_env **head, char *key);

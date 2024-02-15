@@ -52,10 +52,9 @@ void	ft_echo(char **cmds)
 	int	j;
 	int	flag;
 
-	printf("echo\n");
 	flag = 0;
 	i = 0;
-	if (ft_strncmp(cmds[1], "-n", 2) == 0)
+	if (cmds[1] && ft_strncmp(cmds[1], "-n", 2) == 0)
 		if (!(cmds[1][2]) || cmds[1][2] == 'n')
 			i++;
 	if (i == 1)
@@ -65,7 +64,7 @@ void	ft_echo(char **cmds)
 		j = -1;
 		while (cmds[i][++j] != '\0')
 		{
-			if (cmds[i][j] == '$')
+			/* if (cmds[i][j] == '$' &&)
 			{
 				if (cmds[i][j + 1] == '?')
 				{
@@ -82,7 +81,7 @@ void	ft_echo(char **cmds)
 				while (cmds[i][++j + 1] > 32 && cmds[i][j + 1] != '$')
 					;
 			}
-			else
+			else */
 				ft_printf("%c", cmds[i][j]);
 		}
 		if (cmds[i + 1])
@@ -118,7 +117,7 @@ char	**ft_env_to_char(t_env *env)
 	return (env_char);
 }
 
-void	ft_exec(char **cmds, t_shell *shell)
+int	ft_exec(char **cmds, t_shell *shell)
 {
 	pid_t	pid;
 	int		status;
@@ -143,6 +142,7 @@ void	ft_exec(char **cmds, t_shell *shell)
 	}
 	wait(&pid);
 	free(path);
+	return (0);
 }
 
 void	ft_cd(char **cmds, t_shell *shell)
@@ -267,45 +267,45 @@ int	main(int ac, char **av, char **envp)
 
 	while (1)
 	{
-		shell.input = readline("\e[4;35mmini\e[4;34mshell\e[0;36m$\e[0m ");
-		if (shell.input == NULL)
+		shell.cmds->input = readline("\e[4;35mmini\e[4;34mshell\e[0;36m$\e[0m ");
+		if (shell.cmds->input == NULL)
 		{
 			printf("exit\n");
 			break ;
 		}
 		parser(&shell);
-		if (ft_strcmp(shell.input, "exit") == 0)
+		if (ft_strcmp(shell.cmds->input, "exit") == 0)
 		{
-			free(shell.input);
+			free(shell.cmds->input);
 			break ;
 		}
-		if (ft_strcmp(shell.input, "") != 0)
-			add_history(shell.input);
-		//shell.cmds = ft_split(shell.input, ' ');
-		free(shell.input);
-		shell.input = NULL;
-		if (shell.cmds[0] == NULL)
+		if (ft_strcmp(shell.cmds->input, "") != 0)
+			add_history(shell.cmds->input);
+		//shell.cmds = ft_split(shell.cmds->input, ' ');
+		free(shell.cmds->input);
+		shell.cmds->input = NULL;
+		if (shell.cmds->cmds[0] == NULL)
 		{
-			free(shell.cmds);
+			free(shell.cmds->cmds);
 			continue ;
 		}
-		if (ft_strcmp(shell.cmds[0], "echo") == 0)
-			ft_echo(shell.cmds);
-		else if (ft_strcmp(shell.cmds[0], "cd") == 0)
-			ft_cd(shell.cmds, &shell);
-		else if (ft_strcmp(shell.cmds[0], "export") == 0)
-			ft_export(shell.cmds, &shell);
-		else if (ft_strcmp(shell.cmds[0], "env") == 0)
-			ft_env(shell.cmds, &shell);
-		else if (ft_strcmp(shell.cmds[0], "unset") == 0)
+		if (ft_strcmp(shell.cmds->cmds[0], "echo") == 0)
+			ft_echo(shell.cmds->cmds);
+		else if (ft_strcmp(shell.cmds->cmds[0], "cd") == 0)
+			ft_cd(shell.cmds->cmds, &shell);
+		else if (ft_strcmp(shell.cmds->cmds[0], "export") == 0)
+			ft_export(shell.cmds->cmds, &shell);
+		else if (ft_strcmp(shell.cmds->cmds[0], "env") == 0)
+			ft_env(shell.cmds->cmds, &shell);
+		else if (ft_strcmp(shell.cmds->cmds[0], "unset") == 0)
 		{
-			ft_unset(&shell.env, shell.cmds[1]);
-			ft_unset(&shell.exp, shell.cmds[1]);
+			ft_unset(&shell.env, shell.cmds->cmds[1]);
+			ft_unset(&shell.exp, shell.cmds->cmds[1]);
 		}
 		else
-			ft_exec(shell.cmds, &shell);
-		free(shell.cmds);
-		shell.cmds = NULL;
+			ft_exec(shell.cmds->cmds, &shell);
+		free(shell.cmds->cmds);
+		shell.cmds->cmds = NULL;
 	}
 
 	free_all(&shell);

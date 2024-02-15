@@ -85,6 +85,14 @@ t_token	*init_token(t_token *token)
 	return (token);
 }
 
+t_cmds	*init_cmds(t_cmds *cmds)
+{
+	cmds = (t_cmds *)malloc(sizeof(t_cmds));
+	cmds->cmds = NULL;
+	cmds->input = NULL;
+	return (cmds);
+}
+
 void	init_shell(t_shell *shell, char **envp)
 {
 	char **env;
@@ -92,6 +100,6 @@ void	init_shell(t_shell *shell, char **envp)
 	env = envp;
 	init_env(shell, env);
 	init_export(shell, env);
+	shell->cmds = init_cmds(shell->cmds);
 	shell->token = init_token(shell->token);
 }
-
