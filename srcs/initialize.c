@@ -90,16 +90,33 @@ t_cmds	*init_cmds(t_cmds *cmds)
 	cmds = (t_cmds *)malloc(sizeof(t_cmds));
 	cmds->cmds = NULL;
 	cmds->input = NULL;
+	cmds->count_cmds = 0;
 	return (cmds);
+}
+
+t_pipe	*init_pipe(t_pipe *pipe)
+{
+	pipe = (t_pipe *)malloc(sizeof(t_pipe));
+	pipe->fd_out = dup(STDOUT_FILENO);
+	pipe->fd_in = dup(STDIN_FILENO);
+	pipe->index = 0;
+	pipe->cmds = NULL;
+	return (pipe);
+}
+
+void	init_redir(t_redir **redir)
+{
+	*redir = (t_redir *)malloc(sizeof(t_redir));
+	(*redir)->file = NULL;
+	(*redir)->type = 0;
 }
 
 void	init_shell(t_shell *shell, char **envp)
 {
-	char **env;
-
-	env = envp;
-	init_env(shell, env);
-	init_export(shell, env);
+	init_env(shell, envp);
+	init_export(shell, envp);
+	init_redir(&shell->redir);
+	shell->pipe = NULL; //init_pipe(shell->pipe);
 	shell->cmds = init_cmds(shell->cmds);
 	shell->token = init_token(shell->token);
 }

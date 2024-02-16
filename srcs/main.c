@@ -273,7 +273,8 @@ int	main(int ac, char **av, char **envp)
 			printf("exit\n");
 			break ;
 		}
-		parser(&shell);
+		if (parser(&shell) == 1)
+			continue ;
 		if (ft_strcmp(shell.cmds->input, "exit") == 0)
 		{
 			free(shell.cmds->input);

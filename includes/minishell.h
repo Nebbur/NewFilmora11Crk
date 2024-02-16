@@ -36,9 +36,16 @@ enum	e_TYPE_TOKEN {
 	ENV,			// 12
 	PARENTHESIS,	// 13
 	WORD,			// 14
+	EMPTY,			// 15
+};
+
+enum	e_PIPES {
+	READ = 0,
+	WRITE,
 };
 
 enum	e_GLOBAL {
+	INITIATE_VALUE = -1,
 	INDEX,
 };
 
@@ -48,6 +55,12 @@ typedef struct s_env
 	char			*value;
 	struct s_env	*next;
 }	t_env;
+
+typedef struct s_redir
+{
+	char	*file;
+	int		type;
+}	t_redir;
 
 typedef struct s_token
 {
@@ -60,10 +73,21 @@ typedef struct s_token
 	struct s_token	*next;
 }	t_token;
 
+typedef struct s_pipe
+{
+	char			**cmds;
+	int				**pipe;
+	int				fd_out;
+	int				fd_in;
+	int				index;
+}	t_pipe;
+
 typedef struct s_cmds
 {
-	char **cmds;
-	char *input;
+	int		count_cmds;
+	char	**cmds;
+	int		*type;
+	char	*input;
 }	t_cmds;
 
 typedef struct s_shell
@@ -72,6 +96,8 @@ typedef struct s_shell
 	t_env	*exp;
 	t_token	*token;
 	t_cmds	*cmds;
+	t_pipe	*pipe;
+	t_redir	*redir;
 }	t_shell;
 
 //			Lexical
@@ -86,6 +112,8 @@ void	init_env(t_shell *shell, char **envp);
 void	init_export(t_shell *shell, char **envp);
 void	init_shell(t_shell *shell, char **envp);
 t_token	*init_token(t_token *token);
+t_pipe	*init_pipe(t_pipe *pipe);
+t_cmds	*init_cmds(t_cmds *cmds);
 
 //			Temp Main
 void	sort_list(t_env *head);

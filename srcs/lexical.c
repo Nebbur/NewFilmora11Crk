@@ -19,7 +19,104 @@ static bool	is_special_char(char c)
 {
 	if (c == '|' || c == ';' || c == '\'' || c == '\"' || \
 	c == '>' || c == '<' || c == '$' || c == '&' || \
-	c == '(' || c == ')' || c == 92)
+	c == '(' || c == ')' || c == '\\')
+		return (true);
+	return (false);
+}
+
+void	handle_backslash(t_token *token, char *input, int *i, char *special_char[2])
+{
+	int	begin;
+	int	j;
+	int	count_char;
+
+	token->type = BACKSLASH;
+	if (input[*i + 1] == '\0')
+		token->error = 1;
+	else if (ft_strchr(*special_char, input[*i + 1]) != NULL)
+	{
+		begin = *i;
+		count_char = 0;
+		j = -1;
+		while (input[++(j)] && input[j] > 32)
+		{
+			if (input[j] == '\\')
+			{
+				j++;
+				if (ft_strchr(*special_char, input[*i]) != NULL)
+					count_char++;
+			}
+			else
+				count_char++;
+		}
+		token->value = ft_calloc(1, sizeof(char *) * (count_char + 1));;
+		(*i)--;
+		while (input[++(*i)] && input[*i] > 32)
+		{
+			if (input[*i] == '\\')
+			{
+				if (ft_strchr(*special_char, input[++(*i)]) != NULL)
+					token->value = ft_strjoin(token->value, ft_substr(input, *i, 1));
+				else if (*special_char[1] == '1')
+					token->value = ft_strjoin(token->value, ft_substr(input, --(*i), 1));
+			}
+			else
+				token->value = ft_strjoin(token->value, ft_substr(input, *i, 1));
+		}
+		token->next = init_token(token->next);
+		token->next->prev = token;
+	}
+	else
+		printf("Error: Backslash isn't followed by anything\n");
+}
+
+void	handle_only_backslash(t_token *token, char *input, int *i)
+{
+	int	begin;
+	int	j;
+	int	count_char;
+
+	token->type = BACKSLASH;
+	if (input[*i + 1] == '\0')
+		token->error = 1;
+	else if (ft_strchr("\\", input[*i + 1]) != NULL)
+	{
+		begin = *i;
+		count_char = 0;
+		j = -1;
+		while (input[++(j)] && input[j] > 32)
+		{
+			if (input[j] == '\\')
+			{
+				j++;
+				if (ft_strchr("\\", input[*i]) != NULL)
+					count_char++;
+			}
+			else
+				count_char++;
+		}
+		token->value = ft_calloc(1, sizeof(char *) * (count_char + 1));;
+		(*i)--;
+		while (input[++(*i)] && input[*i] > 32)
+		{
+			if (input[*i] == '\\')
+				if (ft_strchr("\\", input[++(*i)]) != NULL)
+					token->value = ft_strjoin(token->value, ft_substr(input, *i, 1));
+			else
+				token->value = ft_strjoin(token->value, ft_substr(input, *i, 1));
+		}
+		token->next = init_token(token->next);
+		token->next->prev = token;
+	}
+}
+
+bool	is_same_word(char *input, int i)
+{
+	if (input[i] && input[i + 1] && (input[i + 1] == '\"' || input[i + 1] == '\'') || \
+	ft_isalnum(input[i + 1]) == 1)
+		return (true);
+	else if (input[i] && input[i + 1] && input[i + 1] == '\\' && input[i + 2] != '\0' && \
+	(input[i + 2] == '\'' || input[i + 2] == '\\' || input[i + 2] == '\"'))
 		return (true);
 	return (false);
 }
@@ -28,23 +125,55 @@ void handle_quote(int quote_type, bool *quote, int *i, char *input, t_token *tok
 {
 	char	quote_char;
 	int		begin;
+	int		j;
+	char	*temp;
 
 	quote[quote_type] = !quote[quote_type];
+	if (quote[quote_type] == false)
+		return ;
 	token->type = quote_type;
 	begin = *i + 1;
-	if (quote[quote_type] == true)
-		quote_char = input[*i];
-	while (quote[quote_type] == true && input[++(*i)] && input[*i] != quote_char)
-		;
-	if (input[*i] && input[*i + 1] && (input[*i + 1] == '\"' || input[*i + 1] == '\'') || \
-	isalnum(input[*i + 1]) == 1)
+	quote_char = input[*i];
+	if (input[*i + 1] && input[*i + 1] == quote_char && input[*i] == quote_char)
+	{
+		token->type = EMPTY;
+		(*i) = *i + 2;
+		return ;
+	}
+	while (input[++(*i)])
+	{
+		if (quote_char == '\'' && input[*i] == quote_char)
+			break;
+		else if (quote_char == '\"' && input[*i + 1] && \
+		input[*i] != '\\' && input[*i + 1] == quote_char)
+		{
+			(*i)++;
+			break;
+		}
+	}
+	if (is_same_word(input, *i) == true)
 		token->same_word = true;
-	else if (input[*i] && input[*i + 1] && input[*i + 1] == '\\' && input[*i + 2] != '\0' && \
-	(input[*i + 2] == '\'' || input[*i + 2] == '\\' || input[*i + 2] == '\"'))
-		token->same_word = true;
+	j = -1;
 	token->value = ft_substr(input, begin, *i - begin);
+	while (quote_char == '\"' && token->value[++j] && token->value[j] != quote_char)
+	{
+		if (token->value[j + 1] && token->value[j] == '\\' && token->value[j + 1] == '\\')
+		{
+			temp = ft_calloc(1, sizeof(char *) * (ft_strlen(token->value) + 1));
+			temp = ft_substr(token->value, 0, j);
+			char *temp2 = ft_calloc(1, sizeof(char *) * (ft_strlen(token->value) + 1));
+			temp2 = ft_memcpy(temp2, token->value + j + 1, ft_strlen(token->value) - j);
+			handle_backslash(token, token->value, &j, (char *[]){"\\\"$", "1"});
+			temp = ft_strjoin(temp, token->value);
+			token->value = ft_strdup(temp);
+			free(temp);
+			if (is_same_word(input, (*i)))
+				token->same_word = true;
+		}
+	}
 	token->next = init_token(token->next);
 	token->next->prev = token;
+	token = token->next;
 }
 
 t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
@@ -62,7 +191,8 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 				handle_quote(S_QUOTE, quote, i, input, token);
 			else
 				handle_quote(D_QUOTE, quote, i, input, token);
-			token = token->next;
+			if (token->type != EMPTY)
+				token = token->next;
 			break ;
 		}
 		else if (input[*i] == '$')
@@ -190,51 +320,10 @@ t_token	*special_char(char *input, t_token *token, int *i, bool quote[2])
 			}
 			break ;
 		}
-		else if (input[*i] == 92)
+		else if (input[*i] == '\\')
 		{
-			token->type = BACKSLASH;
-			if (input[*i + 1] == '\0')
-			{
-				printf("Error: Backslash at the end of the line\n");
-				token->error = 1;
-				return (token);
-			}
-			if (ft_strchr("\\\"\'$&|", input[*i + 1]) != NULL)
-			{
-				printf("Backslash followed by a special character\n");
-				begin = *i;
-				int count_char = 0;
-				int j = -1;
-				while (input[++(j)] && input[j] > 32)
-				{
-					if (input[j] == 92)
-					{
-						j++;
-						if (ft_strchr("\\\"\'$&|", input[*i]) != NULL)
-							count_char++;
-					}
-					else
-						count_char++;
-				}
-				token->value = ft_calloc(1, sizeof(char *) * (count_char + 1));;
-				(*i)--;
-				while (input[++(*i)] && input[*i] > 32)
-				{
-					if (input[*i] == 92)
-					{
-						if (ft_strchr("\\\"\'$&|", input[++(*i)]) != NULL)
-							token->value = ft_strjoin(token->value, ft_substr(input, *i, 1));
-					}
-					else
-						token->value = ft_strjoin(token->value, ft_substr(input, *i, 1));
-					printf("Token value: %s\n", token->value);
-				}
-				token->next = init_token(token->next);
-				token->next->prev = token;
-				token = token->next;
-			}
-			else
-				printf("Error: Backslash isn't followed by anything\n");
+			handle_backslash(token, input, i, (char *[]){"\\\"\'$&|<>();?*", "0"});
+			token = token->next;
 			break ;
 		}
 		else if (input[*i] == '(')
