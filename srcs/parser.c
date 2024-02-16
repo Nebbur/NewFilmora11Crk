@@ -242,3 +242,4 @@ int	parser(t_shell *shell)
 	print_cmds(shell->cmds->cmds);
 	return (0);
 }
+
