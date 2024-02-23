@@ -47,6 +47,7 @@ enum	e_PIPES {
 enum	e_GLOBAL {
 	INITIATE_VALUE = -1,
 	INDEX,
+	BREAK,
 };
 
 typedef struct s_env
@@ -102,7 +103,7 @@ typedef struct s_shell
 
 //			Lexical
 int	lexical(char *input , t_shell *shell);
-t_token	*special_char(char *input, t_token *token, int *i, bool quote[2]);
+t_token	*special_char(char *input, t_token *token, int *i);
 
 //			Parser
 int	parser(t_shell *shell);

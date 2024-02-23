@@ -73,6 +73,8 @@ void	init_export(t_shell *shell, char **envp)
 
 t_token	*init_token(t_token *token)
 {
+	if (token)
+		free(token);
 	token = (t_token *)malloc(sizeof(t_token));
 	token->type = 0;
 	token->error = 0;

@@ -101,41 +101,28 @@ int	parsing(t_shell *shell)
 	return (0);
 }
 
-int	process_tokens(t_shell *shell)
+int process_tokens(t_shell *shell)
 {
 	t_token	*token;
 
 	token = shell->token;
-	while (token->next != NULL)
+	while (token->next)
 	{
-		if (token->type == S_QUOTE || token->type == D_QUOTE)
+		if (token->same_word == true && token->next != NULL && token->next->next != NULL)
 		{
-			if ((token->next && token->same_word == true) && \
-			(token->next->type == S_QUOTE || token->next->type == D_QUOTE))
-			{
-				token->value = ft_strjoin(token->value, token->next->value);
-				token->next = token->next->next;
-				token->next->prev = token;
-			}
+			token->next->value = ft_strjoin(token->value, token->next->value);
+			token = token->prev;
+			token->next = token->next->next;
+			token->next->next->prev = token->next;
+			token->next->prev = token;
 		}
-		if (token->type == BACKSLASH)
-		{
-			token->type = WORD;
-			if (token->same_word == true)
-			{
-				token->same_word = false;
-				if (token->next)
-				{
-					token->value = ft_strjoin(token->value, token->next->value);
-					token->next = token->next->next;
-					token->next->prev = token;
-				}
-			}
-		}
-		token = token->next;
+		if (token->next->next != NULL)
+			token = token->next;
+		else
+			break ;
 	}
+	return (0);
 }
-
 void	print_cmds(char **cmds)
 {
 	int		i;
@@ -242,4 +229,3 @@ int	parser(t_shell *shell)
 	print_cmds(shell->cmds->cmds);
 	return (0);
 }
-

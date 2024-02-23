@@ -1,0 +1,20 @@
+echo "\!" '\!' \!
+\! \! !
+
+echo "\\" '\\' \\
+\ \\ \
+
+echo "\\\\" '\\\\' \\\\
+\\ \\\\ \\
+
+echo "\$\\" \$\\ '\$\\'
+$\ $\ \$\\
+
+echo "\$\\"\$\\'\$\\'
+$\$\\$\\
+
+echo "\$\\"\$\\'\$\\'noquotes"doublequotes"
+$\$\\$\\noquotesdoublequotes
+
+echo "\$\\"\$\\'\$\\'noquotes"doublequotes"por"tu"'gal'
+$\$\\$\\noquotesdoublequotesportugal
