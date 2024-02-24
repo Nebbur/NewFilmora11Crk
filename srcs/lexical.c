@@ -94,8 +94,6 @@ void	handle_backslash(t_token *token, char *input, int *i, char *special_char[2]
 
 bool	is_same_word(char *input, int i)
 {
-	printf("Same word\n");
-	printf("input i: %s\n", input + i);
 	if (next_command_exists(input + (i + 1)) == false)
 		return (false);
 	if (input[i] && input[i + 1] && (input[i + 1] == '\"' || input[i + 1] == '\'') || \
@@ -393,7 +391,6 @@ bool	next_command_exists(char *input)
 	i = 0;
 	if (input[i] == '\0')
 		return (false);
-	printf("Input %s\n", input);
 	while (input[i] && input[i] < 33)
 		i++;
 	if (input[i] == '\0')
@@ -420,13 +417,9 @@ int	lexical(char *input , t_shell *shell)
 			break ;
 		if (is_special_char(input[i]) == true)
 		{
-			printf("Is Special Char\n");
 			token = special_char(input, token, &i);
-			//token->next = (t_token *)malloc(sizeof(t_token));
-			printf("input i: %s\n", input + i);
 			if (next_command_exists(input + i + 1) == true)
 			{
-				printf("Next command exists\n");
 				token->next = init_token(token->next);
 				token->next->prev = token;
 				token->next->quote[S_QUOTE] = token->quote[S_QUOTE];
@@ -447,11 +440,8 @@ int	lexical(char *input , t_shell *shell)
 				token->same_word = true;
 			if (next_command_exists(input + i + 1) == true)
 			{
-				printf("Next command exists\n");
-				//token->next = (t_token *)malloc(sizeof(t_token));
 				token->next = init_token(token->next);
 				token->next->prev = token;
-				printf("Token value %s\n", token->value);
 				token = token->next;
 			}
 			else
@@ -459,7 +449,10 @@ int	lexical(char *input , t_shell *shell)
 		}
 	}
 	print_token(shell->token);
-	printf("After process_tokens\n");
+	printf("%s______________________________________\n", GREEN);
+	printf("|                                    |\n");
+	printf("%s|_-_-_-_-_-_%sLEAVING LEXICAL%s-_-_-_-_-_|%s\n", GREEN, RED, GREEN, RESET);
+	printf("%s|____________________________________|\n", GREEN);
 	return (0);
 }
 

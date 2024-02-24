@@ -40,20 +40,20 @@ int	validation(t_shell *shell)
 		{
 			if (token->next == NULL)
 				new_input(shell);
-			if (token->next && token->next->type == PIPE || token->next->type == AND || token->next->type == OR)
+			if (token->next && (token->next->type == PIPE || token->next->type == AND || token->next->type == OR))
 			{
 				printf("Error: Operator not followed by any command\n");
 				return (1);
 			}
 		}
-		if (token->type == REDIR_OUT || token->type == REDIR_IN || token->type == REDIR_APPEND || token->type == REDIR_HEREDOC)
+		/* if (token->type == REDIR_OUT || token->type == REDIR_IN || token->type == REDIR_APPEND || token->type == REDIR_HEREDOC)
 		{
 			if (token->next == NULL || token->next->type == PIPE || token->next->type == AND || token->next->type == OR)
 			{
 				printf("Error: Redirection not followed by any file\n");
 				return (1);
 			}
-		}
+		} */
 		token = token->next;
 	}
 	return (0);
@@ -130,7 +130,7 @@ int	check_valid_pipes(t_shell *shell)
 	t_token	*token;
 
 	token = shell->token;
-	while (token->next != NULL)
+	while (token != NULL)
 	{
 		if (token->type == PIPE)
 		{
@@ -151,7 +151,7 @@ int	count_pipes(t_shell *shell)
 
 	token = shell->token;
 	i = 0;
-	while (token->next != NULL)
+	while (token != NULL)
 	{
 		if (token->type == PIPE)
 			i++;
@@ -199,7 +199,6 @@ int	process_pipes(t_shell *shell)
 		else
 			pipe->cmds[pipe->index] = shell->cmds->cmds[pipe->index + i];
 	}
-	print_cmds(pipe->cmds);
 	return (0);
 }
 
