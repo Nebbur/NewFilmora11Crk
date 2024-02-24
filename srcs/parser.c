@@ -54,10 +54,7 @@ int	validation(t_shell *shell)
 				return (1);
 			}
 		}
-		if (token->next != NULL)
-			token = token->next;
-		else
-			break ;
+		token = token->next;
 	}
 	return (0);
 }
@@ -93,8 +90,6 @@ int	parsing(t_shell *shell)
 		shell->cmds->type[i] = temp->type;
 		if (temp->type == WORD)
 			shell->cmds->cmds[i++] = ft_strdup(temp->value);
-		if (!temp->next->next)
-			break ;
 		temp = temp->next;
 	}
 	shell->cmds->cmds[i] = NULL;
@@ -106,33 +101,28 @@ int process_tokens(t_shell *shell)
 	t_token	*token;
 
 	token = shell->token;
-	while (token->next)
+	while (token)
 	{
-		if (token->same_word == true && token->next != NULL && token->next->next != NULL)
+		if (token->same_word == true && token->next != NULL)
 		{
 			token->next->value = ft_strjoin(token->value, token->next->value);
 			token = token->prev;
 			token->next = token->next->next;
-			token->next->next->prev = token->next;
+			if (token->next->next != NULL)
+				token->next->next->prev = token->next;
 			token->next->prev = token;
 		}
-		if (token->next->next != NULL)
-			token = token->next;
-		else
-			break ;
+		token = token->next;
 	}
 	return (0);
 }
 void	print_cmds(char **cmds)
 {
-	int		i;
+	int	i;
 
-	i = 0;
-	while (cmds[i])
-	{
+	i = -1;
+	while (cmds[++i])
 		printf("Cmds[%d]: %s\n", i, cmds[i]);
-		i++;
-	}
 }
 
 int	check_valid_pipes(t_shell *shell)

@@ -18,6 +18,7 @@ int	ft_isnot_theend(char *input, int i);
 int	ft_isnotspace(char c);
 bool	is_same_word(char *input, int i);
 void remove_last_node(t_token **head) ;
+bool	next_command_exists(char *input);
 
 static bool	is_special_char(char c)
 {
@@ -93,6 +94,10 @@ void	handle_backslash(t_token *token, char *input, int *i, char *special_char[2]
 
 bool	is_same_word(char *input, int i)
 {
+	printf("Same word\n");
+	printf("input i: %s\n", input + i);
+	if (next_command_exists(input + (i + 1)) == false)
+		return (false);
 	if (input[i] && input[i + 1] && (input[i + 1] == '\"' || input[i + 1] == '\'') || \
 	ft_isnotspace(input[i + 1]) == 1)
 		return (true);
@@ -381,6 +386,21 @@ void remove_last_node(t_token **head)
 	}
 }
 
+bool	next_command_exists(char *input)
+{
+	int	i;
+
+	i = 0;
+	if (input[i] == '\0')
+		return (false);
+	printf("Input %s\n", input);
+	while (input[i] && input[i] < 33)
+		i++;
+	if (input[i] == '\0')
+		return (false);
+	return (true);
+}
+
 int	lexical(char *input , t_shell *shell)
 {
 	t_token	*token;
@@ -400,12 +420,21 @@ int	lexical(char *input , t_shell *shell)
 			break ;
 		if (is_special_char(input[i]) == true)
 		{
+			printf("Is Special Char\n");
 			token = special_char(input, token, &i);
-			token->next = (t_token *)malloc(sizeof(t_token));
-			token->next->prev = token;
-			token->next->quote[S_QUOTE] = token->quote[S_QUOTE];
-			token->next->quote[D_QUOTE] = token->quote[D_QUOTE];
-			token = token->next;
+			//token->next = (t_token *)malloc(sizeof(t_token));
+			printf("input i: %s\n", input + i);
+			if (next_command_exists(input + i + 1) == true)
+			{
+				printf("Next command exists\n");
+				token->next = init_token(token->next);
+				token->next->prev = token;
+				token->next->quote[S_QUOTE] = token->quote[S_QUOTE];
+				token->next->quote[D_QUOTE] = token->quote[D_QUOTE];
+				token = token->next;
+			}
+			else
+				token->next = NULL;
 		}
 		else
 		{
@@ -416,12 +445,21 @@ int	lexical(char *input , t_shell *shell)
 			i--;
 			if (is_same_word(input, i) == true)
 				token->same_word = true;
-			token->next = (t_token *)malloc(sizeof(t_token));
-			token->next->prev = token;
-			token = token->next;
+			if (next_command_exists(input + i + 1) == true)
+			{
+				printf("Next command exists\n");
+				//token->next = (t_token *)malloc(sizeof(t_token));
+				token->next = init_token(token->next);
+				token->next->prev = token;
+				printf("Token value %s\n", token->value);
+				token = token->next;
+			}
+			else
+				token->next = NULL;
 		}
 	}
 	print_token(shell->token);
+	printf("After process_tokens\n");
 	return (0);
 }
 
@@ -430,8 +468,9 @@ void	print_token(t_token *token)
 	t_token	*temp;
 
 	temp = token;
-	while (temp->next)
+	while (temp != NULL)
 	{
+		printf("%s_______________________\n", RED);
 		char *quote;
 		if (temp->quote[S_QUOTE] == true)
 			quote = "SINGLE";
