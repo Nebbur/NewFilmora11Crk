@@ -18,3 +18,25 @@ $\$\\$\\noquotesdoublequotes
 
 echo "\$\\"\$\\'\$\\'noquotes"doublequotes"por"tu"'gal'
 $\$\\$\\noquotesdoublequotesportugal
+
+
+válido: ls|wc -l;(cd srcs|grep main.c)&&"e""c"'h'o "ok"||'echo' '"ko"';echo "'end'"
+5
+"ko"
+end
+
+inválido: ls | wc -l; (cd srcs|grep main.c) && "e""c"'h'o "ok" || echo "ko";echo"end"
+5
+ko
+echoend: command not found
+
+inválido: ls | wc -l; (cd srcs|grep main.c) && "e""c"'h'o "ok" | | echo "ko";echo "end"
+-bash: syntax error near unexpected token `|'
+
+inválido: ls | wc -l; (cd srcs|grep main.c) & & "e""c"'h'o "ok" || echo "ko";echo "end"
+-bash: syntax error near unexpected token `&'
+
+inválido: ls | wc-l; (cd srcs|grep main.c) && "e""c"'h'o "ok" || echo "ko";echo "end"
+wc-l: command not found
+ko
+end

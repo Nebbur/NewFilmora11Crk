@@ -40,7 +40,7 @@ enum	e_TYPE_TOKEN {
 };
 
 enum	e_PIPES {
-	READ = 0,
+	READ,
 	WRITE,
 };
 
