@@ -102,7 +102,7 @@ int process_tokens(t_shell *shell)
 
 	token = shell->token;
 	int i = 0;
-	while (token)
+	while (token) // loop responsavel por agrupar os tokens
 	{
 		if (token->same_word == true && token->next != NULL)
 		{
