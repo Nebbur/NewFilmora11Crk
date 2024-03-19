@@ -84,9 +84,10 @@ void	handle_backslash(t_token *token, char *input, int *i, char *special_char[2]
 			else
 				token->value = ft_strjoin(token->value, ft_substr(input, *i, 1));
 		}
-		(*i)--;
 		if (is_same_word(input, (*i)) == true)
 			token->same_word = true;
+		(*i)--;
+		printf("Input: %s\n", input + *i);
 	}
 	else
 		printf("Error: Backslash isn't followed by anything\n");
@@ -95,7 +96,9 @@ void	handle_backslash(t_token *token, char *input, int *i, char *special_char[2]
 bool	is_same_word(char *input, int i)
 {
 	if (next_command_exists(input + (i + 1)) == false)
+	{
 		return (false);
+	}
 	if (input[i] && input[i + 1] && (input[i + 1] == '\"' || input[i + 1] == '\'') || \
 	ft_isnotspace(input[i + 1]) == 1)
 		return (true);
@@ -131,6 +134,7 @@ void	handle_backslah_in_quote(t_token *token, char *input, int *i_beg[2], char q
 	int		j;
 	int		k;
 
+	//printf("Handle Backslash in quote\n");
 	j = -1;
 	while (token->value[++j])
 		;
@@ -141,33 +145,46 @@ void	handle_backslah_in_quote(t_token *token, char *input, int *i_beg[2], char q
 	{
 		if (token->value[j + 1] && token->value[j] == '\\')
 		{
-			temp = ft_calloc(1, sizeof(char *) * (ft_strlen(token->value) + 1));
-			temp = ft_substr(token->value, 0, j);
-			k = 0;
-			while (token->value[j + k] && token->value[j + k + 1] && \
-			ft_isnotspace(token->value[j + k]))
-				k = k + ft_isnot_theend(token->value, j + k);
-			temp2 = ft_strdup(token->value + j + k);
-			handle_backslash(token, token->value, &j, (char *[]){"\\\"$`", "1"});
-			temp = ft_strjoin(temp, token->value);
-			token->value = ft_strdup(temp);
+			temp = ft_substr(token->value, j, 2);
+			temp[2] = '\0';
+		//	printf("Temp value: %s\n", temp);
+			temp2 = ft_strdup(token->value + 2);
+		//	printf("Temp2 value: %s\n", temp2);
+			handle_backslash(token, temp, &j, (char *[]){"\\\"\'$&|<>();?*!`", "1"});
 			token->value = ft_strjoin(token->value, temp2);
+		//	printf("Token value after: %s\n", token->value);
 			free(temp);
 			free(temp2);
+			/* printf("Temp value: %s\n", temp);
+			printf("Before while\n");
+			printf("Token value: %s\n", token->value);
+			//while (token->value[j + k] && token->value[j + k + 1] && \
+			//ft_isnotspace(token->value[j + k]))
+			//	k = k + ft_isnot_theend(token->value, j + k);
+			temp2 = ft_strdup(token->value + j + 2);
+			printf("Temp2: %s\n", temp2);
+			printf("Token value before: %s\n", token->value);
+			handle_backslash(token, temp, &j, (char *[]){"\\\"$`", "1"});
+			printf("Token value after: %s\n", token->value);
+			temp = ft_strjoin(temp, token->value);
+			printf("Temp: %s\n", temp);
+			token->value = ft_strjoin(temp, temp2);
+			free(temp);
+			free(temp2); */
 		}
 	}
 }
 
 void handle_quote(int quote_type, int *i, char *input, t_token *token)
 {
+	char	*temp;
 	char	quote_char;
 	int		begin;
-	int		j;
-	char	*temp;
 	int		len;
+	int		j;
 
 	len = 0;
-	token->type = quote_type;
+	token->type = WORD;
 	begin = *i + 1;
 	quote_char = input[*i];
 	if (input[*i + 1] && input[*i + 1] == quote_char && input[*i] == quote_char)
@@ -176,18 +193,29 @@ void handle_quote(int quote_type, int *i, char *input, t_token *token)
 		(*i) = *i + 2;
 		return ;
 	}
-	if (quote_char == '\'' && input[*i] == quote_char)
+	if (input[*i + 1] == '$')
+	{
+		while (input[++(*i)])
+			if (input[*i] == quote_char)
+				break ;
+		token->type = ENV;
+		token->value = ft_substr(input, begin, *i - begin);
+		token->delimiter[quote_type] = true;
+		return ;
+	}
+	if (quote_type == S_QUOTE && input[*i] == quote_char)
 	{
 		while (input[++(*i)] && input[*i] != quote_char)
 			;
 		token->value = ft_substr(input, begin, *i - begin);
-		if (is_same_word(input, (*i)) == true)
-			token->same_word = true;
+		if (is_same_word(input, (*i)) == true && is_special_char(input[*i + 1]) == false)
+				token->same_word = true;
+		(*i)--;
 		return ;
 	}
 	while (input[++(*i)])
 	{
-		if (quote_char == '\"' && input[*i + 1] && \
+		if (quote_type == D_QUOTE && input[*i + 1] && \
 		input[*i] != '\\' && input[*i + 1] == quote_char)
 		{
 			len = 1;
@@ -201,14 +229,9 @@ void handle_quote(int quote_type, int *i, char *input, t_token *token)
 		}
 	}
 	token->value = ft_substr(input, begin, (*i  + len) - begin);
-	if (quote_char == '\"')
-	{
-		handle_backslah_in_quote(token, token->value, (int *[]){i, &begin}, quote_char);
-		(*i) = *i + len;
-	}
-	if (is_same_word(input, (*i)) == true)
+	if ((is_same_word(input, (*i)) == true && input[*i + 2] && /*ft_isalnum(input[*i + 2]) != 0) && */
+	(input[*i + 2] == '\"' || input[*i + 2] == '\'')))
 		token->same_word = true;
-	(*i)--;
 }
 
 void	delete_node(t_token *token)
@@ -218,15 +241,15 @@ void	delete_node(t_token *token)
 	temp = token;
 	if (temp != NULL)
 	{
-		temp->quote[S_QUOTE] = false;
-		temp->quote[D_QUOTE] = false;
+		temp->delimiter[S_QUOTE] = false;
+		temp->delimiter[D_QUOTE] = false;
 		free(temp->value);
 		free(temp);
 		temp = NULL;
 	}
 }
 
-t_token	*special_char(char *input, t_token *token, int *i)
+t_token	*special_char(char *input, t_token *token, int *i, bool delimiter_flag[2])
 {
 	int	begin;
 
@@ -236,22 +259,30 @@ t_token	*special_char(char *input, t_token *token, int *i)
 	{
 		if (input[*i] == '\'')
 		{
-			token->quote[S_QUOTE] = !token->quote[S_QUOTE];
-			if (token->quote[S_QUOTE] == false)
+			delimiter_flag[S_QUOTE] = !delimiter_flag[S_QUOTE];
+			if (delimiter_flag[S_QUOTE] == false)
 			{
-				if (input[*i + 1] == '\0')
-						token = token->prev;
+				if (token->value == NULL)
+				{
+					token->prev->delimiter[S_QUOTE] = delimiter_flag[S_QUOTE];
+					token = token->prev;
+				}
+				token->delimiter[S_QUOTE] = true;
 				return (token);
 			}
 			handle_quote(S_QUOTE, i, input, token);
 		}
 		else
 		{
-			token->quote[D_QUOTE] = !token->quote[D_QUOTE];
-			if (token->quote[D_QUOTE] == false)
+			delimiter_flag[D_QUOTE] = !delimiter_flag[D_QUOTE];
+			if (delimiter_flag[D_QUOTE] == false)
 			{
 				if (token->value == NULL)
+				{
+					token->prev->delimiter[D_QUOTE] = delimiter_flag[D_QUOTE];
 					token = token->prev;
+				}
+				token->delimiter[D_QUOTE] = true;
 				return (token);
 			}
 			handle_quote(D_QUOTE, i, input, token);
@@ -260,7 +291,7 @@ t_token	*special_char(char *input, t_token *token, int *i)
 	else if (input[*i] == '$')
 	{
 		begin = *i;
-		while (input[++(*i)] && input[*i] != ' ')
+		while (input[++(*i)] && input[*i] > 32)
 			;
 		token->type = ENV;
 		token->value = ft_substr(input, begin, *i - begin);
@@ -275,8 +306,8 @@ t_token	*special_char(char *input, t_token *token, int *i)
 		}
 		else
 		{
-		token->type = PIPE;
-		token->value = ft_strdup("|");
+			token->type = PIPE;
+			token->value = ft_strdup("|");
 		}
 	}
 	else if (input[*i] == ';')
@@ -288,48 +319,28 @@ t_token	*special_char(char *input, t_token *token, int *i)
 	{
 		if (input[*i + 1] == '>')
 		{
-			token->type = REDIR_APPEND;
 			(*i)++;
-			while (input[++(*i)] && input[*i] == ' ')
-				;
-			begin = (*i);
-			while (input[++(*i)] && input[*i] != ' ')
-				;
-			token->value = ft_substr(input, begin, *i - begin);
+			token->value = ft_strdup(">>");
+			token->type = APPEND;
 		}
 		else
 		{
 			token->type = REDIR_OUT;
-			while (input[++(*i)] && input[*i] == ' ')
-				;
-			begin = (*i);
-			while (input[++(*i)] && input[*i] != ' ')
-				;
-			token->value = ft_substr(input, begin, *i - begin);
+			token->value = ft_strdup(">");
 		}
 	}
 	else if (input[*i] == '<')
 	{
 		if (input[*i + 1] == '<')
 		{
-			token->type = REDIR_HEREDOC;
+			token->type = HEREDOC;
 			(*i)++;
-			while (input[++(*i)] && input[*i] == ' ')
-				;
-			begin = (*i);
-			while (input[++(*i)] && input[*i] != ' ')
-				;
-			token->value = ft_substr(input, begin, *i - begin);
+			token->value = ft_strdup("<<");
 		}
 		else
 		{
 			token->type = REDIR_IN;
-			while (input[++(*i)] && input[*i] == ' ')
-				;
-			begin = (*i);
-			while (input[++(*i)] && input[*i] != ' ')
-				;
-			token->value = ft_substr(input, begin, *i - begin);
+			token->value = ft_strdup("<");
 		}
 	}
 	else if (input[*i] == '&')
@@ -350,13 +361,20 @@ t_token	*special_char(char *input, t_token *token, int *i)
 		handle_backslash(token, input, i, (char *[]){"\\\"\'$&|<>();?*!`", "0"});
 	else if (input[*i] == '(')
 	{
-		token->type = PARENTHESIS;
-		token->value = ft_strdup("(");
-	}
-	else if (input[*i] == ')')
-	{
-		token->type = PARENTHESIS;
-		token->value = ft_strdup(")");
+		token->delimiter[PARENTHESIS] = true;
+		token->type = WORD;
+		int	counter_parenthesis;
+		counter_parenthesis = 1;
+		begin = *i;
+		while (input[++(*i)] && counter_parenthesis != 0)
+		{
+			if (input[*i] == '(')
+				counter_parenthesis++;
+			else if (input[*i] == ')')
+				counter_parenthesis--;
+		}
+		token->value = ft_substr(input, begin, *i - begin);
+		*i = *i - 1;
 	}
 	return (token);
 }
@@ -403,12 +421,18 @@ int	lexical(char *input , t_shell *shell)
 	t_token	*token;
 	int		i;
 	int		j;
+	bool	is_echo;
+	bool	delimiter_flag[2];
 
 	j = -1;
 	i = -1;
+	is_echo = false;
 	token = shell->token;
-	token->quote[S_QUOTE] = false;
-	token->quote[D_QUOTE] = false;
+	delimiter_flag[S_QUOTE] = false;
+	delimiter_flag[D_QUOTE] = false;
+	token->delimiter[S_QUOTE] = false;
+	token->delimiter[D_QUOTE] = false;
+	token->delimiter[PARENTHESIS] = false;
 	while (input[++i])
 	{
 		while (input[i] == ' ')
@@ -417,13 +441,13 @@ int	lexical(char *input , t_shell *shell)
 			break ;
 		if (is_special_char(input[i]) == true)
 		{
-			token = special_char(input, token, &i);
+			token = special_char(input, token, &i, delimiter_flag);
 			if (next_command_exists(input + i + 1) == true)
 			{
 				token->next = init_token(token->next);
 				token->next->prev = token;
-				token->next->quote[S_QUOTE] = token->quote[S_QUOTE];
-				token->next->quote[D_QUOTE] = token->quote[D_QUOTE];
+				token->next->delimiter[S_QUOTE] = delimiter_flag[S_QUOTE];
+				token->next->delimiter[D_QUOTE] = delimiter_flag[D_QUOTE];
 				token = token->next;
 			}
 			else
@@ -436,7 +460,9 @@ int	lexical(char *input , t_shell *shell)
 			while (input[i] && input[i] > 32 && is_special_char(input[i]) == false)
 				token->value = ft_strjoin(token->value, ft_substr(input, i++, 1));
 			i--;
-			if (is_same_word(input, i) == true)
+			if (ft_strcmp(token->value, "echo") == 0)
+				is_echo = true;
+			if (is_echo == true && is_same_word(input, i) == true)
 				token->same_word = true;
 			if (next_command_exists(input + i + 1) == true)
 			{
@@ -464,17 +490,19 @@ void	print_token(t_token *token)
 	while (temp != NULL)
 	{
 		printf("%s_______________________\n", RED);
-		char *quote;
-		if (temp->quote[S_QUOTE] == true)
-			quote = "SINGLE";
-		else if (temp->quote[D_QUOTE] == true)
-			quote = "DOUBLE";
+		char *delimiter;
+		if (temp->delimiter[S_QUOTE] == true)
+			delimiter = "SINGLE";
+		else if (temp->delimiter[D_QUOTE] == true)
+			delimiter = "DOUBLE";
+		else if (temp->delimiter[PARENTHESIS] == true)
+			delimiter = "PARENTHESIS";
 		else
-			quote = "NONE";
+			delimiter = "NONE";
 		printf("%s_______________________\n", RED);
 		printf("|%s Value: |%s%s%s|\n", BLUE, YELLOW, temp->value, BLUE);
 		printf("%s|%s Type: %s%s\n", RED, BLUE, YELLOW, get_token_type(temp->type));
-		printf("%s|%s Quote: %s%s\n", RED, BLUE, YELLOW, quote);
+		printf("%s|%s Delimiter: %s%s\n", RED, BLUE, YELLOW, delimiter);
 		printf("%s|%s Same word: %s%s\n", RED, BLUE, YELLOW, (temp->same_word == true) ? "TRUE" : "FALSE");
 		printf("%s|______________________\n", RED);
 		printf("%s\n", RESET);
@@ -504,10 +532,10 @@ char	*get_token_type(int type)
 		return ("REDIR_OUT");
 	else if (type == REDIR_IN)
 		return ("REDIR_IN");
-	else if (type == REDIR_APPEND)
-		return ("REDIR_APPEND");
-	else if (type == REDIR_HEREDOC)
-		return ("REDIR_HEREDOC");
+	else if (type == APPEND)
+		return ("APPEND");
+	else if (type == HEREDOC)
+		return ("HEREDOC");
 	else if (type == ENV)
 		return ("ENV");
 	else if (type == PARENTHESIS)

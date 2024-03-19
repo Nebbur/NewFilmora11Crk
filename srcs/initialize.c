@@ -82,8 +82,9 @@ t_token	*init_token(t_token *token)
 	token->next = NULL;
 	token->value = NULL;
 	token->same_word = false;
-	token->quote[S_QUOTE] = false;
-	token->quote[D_QUOTE] = false;
+	token->delimiter[S_QUOTE] = false;
+	token->delimiter[D_QUOTE] = false;
+	token->delimiter[PARENTHESIS] = false;
 	return (token);
 }
 

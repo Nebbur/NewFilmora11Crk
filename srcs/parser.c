@@ -46,7 +46,7 @@ int	validation(t_shell *shell)
 				return (1);
 			}
 		}
-		/* if (token->type == REDIR_OUT || token->type == REDIR_IN || token->type == REDIR_APPEND || token->type == REDIR_HEREDOC)
+		/* if (token->type == REDIR_OUT || token->type == REDIR_IN || token->type == APPEND || token->type == HEREDOC)
 		{
 			if (token->next == NULL || token->next->type == PIPE || token->next->type == AND || token->next->type == OR)
 			{
@@ -101,19 +101,32 @@ int process_tokens(t_shell *shell)
 	t_token	*token;
 
 	token = shell->token;
+	int i = 0;
 	while (token)
 	{
 		if (token->same_word == true && token->next != NULL)
 		{
-			token->next->value = ft_strjoin(token->value, token->next->value);
-			token = token->prev;
+			token->value = ft_strjoin(token->value, token->next->value);
+			if (token->next != NULL)
+				token->next->prev = token;
+			if (token->next->same_word == false)
+				token->same_word = false;
 			token->next = token->next->next;
-			if (token->next->next != NULL)
-				token->next->next->prev = token->next;
-			token->next->prev = token;
+			token->type = WORD;
+			if (token->prev != NULL)
+			{
+				token->prev->next = token;
+				token = token->prev;
+			}
+			else
+				continue;
 		}
 		token = token->next;
 	}
+	/* printf("%s______________________________________\n", GREEN);
+	printf("|                                    |\n");
+	printf("%s|_-_-_-_-_-_%sLEAVING PROCESS_TOKENS%s-_-_-_-_-_|%s\n", GREEN, RED, GREEN, RESET);
+	printf("%s|____________________________________|\n", GREEN); */
 	return (0);
 }
 void	print_cmds(char **cmds)
