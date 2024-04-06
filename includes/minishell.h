@@ -32,8 +32,8 @@ enum	e_TYPE_TOKEN {
 	SEMICOLON,		// 8
 	REDIR_OUT,		// 9
 	REDIR_IN,		// 10
-	APPEND,	// 11
-	HEREDOC,	// 12
+	APPEND,			// 11
+	HEREDOC,		// 12
 	ENV,			// 13
 	WORD,			// 14
 	EMPTY,			// 15

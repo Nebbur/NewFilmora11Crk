@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexical.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rboia-pe <rboia-pe@student.42porto.fr>     +#+  +:+       +#+        */
+/*   By: jhogonca <jhogonca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 02:19:58 by rboia-pe          #+#    #+#             */
-/*   Updated: 2023/04/07 02:19:58 by rboia-pe         ###   ########.fr       */
+/*   Updated: 2024/04/06 12:32:36 by jhogonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -473,11 +473,11 @@ bool	lexical(char *input , t_shell *shell)
 				token->next = NULL;
 		}
 	}
-	print_token(shell->token);
+	/* print_token(shell->token);
 	printf("%s______________________________________\n", GREEN);
 	printf("|                                    |\n");
 	printf("%s|_-_-_-_-_-_%sLEAVING LEXICAL%s-_-_-_-_-_|%s\n", GREEN, RED, GREEN, RESET);
-	printf("%s|____________________________________|\n", GREEN);
+	printf("%s|____________________________________|\n", GREEN); */
 	return (0);
 }
 

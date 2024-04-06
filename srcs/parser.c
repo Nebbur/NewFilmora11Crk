@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rboia-pe <rboia-pe@student.42porto.fr>     +#+  +:+       +#+        */
+/*   By: jhogonca <jhogonca@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 02:19:58 by rboia-pe          #+#    #+#             */
-/*   Updated: 2023/04/07 02:19:58 by rboia-pe         ###   ########.fr       */
+/*   Updated: 2024/04/06 12:47:13 by jhogonca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,19 +216,60 @@ int	process_pipes(t_shell *shell)
 	return (0);
 }
 
+char *get_env(char *key, t_env *envp)
+{
+	t_env	*env;
+
+	env = envp;
+	while (env)
+	{
+		if (ft_strcmp(key, "?") == 0)
+			return ft_itoa(g_exit_status);
+		if (ft_strcmp(key, env->key) == 0)
+			return (env->value);
+		env = env->next;
+	}
+	return (NULL);
+}
+
+bool	expand(t_shell *shell)
+{
+	t_token	*token;
+	char	*value;
+
+	token = shell->token;
+	while (token)
+	{
+		if (token->type == ENV)
+		{
+			value = get_env((token->value + 1), shell->env);
+			if (value == NULL)
+			{
+				printf("Error: %s: Undefined variable\n", token->value);
+				return (false);
+			}
+			token->value = value;
+			printf("token->value: %s\n", token->value);
+		}
+		token = token->next;
+	}
+	return (true);
+}
+
 int	parser(t_shell *shell)
 {
 	if (lexical(shell->cmds->input , shell) == 1)
 		return (1);
 	if (process_tokens(shell) == 1)
 		return (1);
+	if (!expand(shell))
+		return 1;
+	exit(0);
 	if (validation(shell) == 1)
 		return (1);
 	if (parsing(shell) == 1)
 		return (1);
 	if (process_pipes(shell) == 1)
 		return (1);
-	print_token(shell->token);
-	print_cmds(shell->cmds->cmds);
 	return (0);
 }
