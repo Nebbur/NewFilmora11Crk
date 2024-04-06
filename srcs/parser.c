@@ -155,6 +155,7 @@ int	check_valid_pipes(t_shell *shell)
 		}
 		token = token->next;
 	}
+	return (0);
 }
 
 int	count_pipes(t_shell *shell)
