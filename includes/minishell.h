@@ -102,7 +102,7 @@ typedef struct s_shell
 }	t_shell;
 
 //			Lexical
-int	lexical(char *input , t_shell *shell);
+bool	lexical(char *input , t_shell *shell);
 t_token	*special_char(char *input, t_token *token, int *i, bool delimiter_flag[2]);
 
 //			Parser

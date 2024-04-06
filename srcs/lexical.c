@@ -229,8 +229,7 @@ void handle_quote(int quote_type, int *i, char *input, t_token *token)
 		}
 	}
 	token->value = ft_substr(input, begin, (*i  + len) - begin);
-	if ((is_same_word(input, (*i)) == true && input[*i + 2] && /*ft_isalnum(input[*i + 2]) != 0) && */
-	(input[*i + 2] == '\"' || input[*i + 2] == '\'')))
+	if (is_same_word(input, (*i)) == true)
 		token->same_word = true;
 }
 
@@ -416,7 +415,7 @@ bool	next_command_exists(char *input)
 	return (true);
 }
 
-int	lexical(char *input , t_shell *shell)
+bool	lexical(char *input , t_shell *shell)
 {
 	t_token	*token;
 	int		i;
